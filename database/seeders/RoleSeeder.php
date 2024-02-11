@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RoleSeeder extends Seeder
 {
@@ -13,16 +13,28 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $items = [
-            ['name' => 'Admin', 'guard_name' => 'web'],
-            ['name' => 'Manager', 'guard_name' => 'web'],
-            ['name' => 'Kitchen Staff', 'guard_name' => 'web'],
-            ['name' => 'Staff', 'guard_name' => 'web'],
-            ['name' => 'Customer', 'guard_name' => 'web'],  
-        
-        ];
-        foreach($items as $items){
-            Role::create($items);
-        }
+        Role::create(['name' => 'Super Admin']);
+        $admin = Role::create(['name' => 'Admin']);
+        $productManager = Role::create(['name' => 'Product Manager']);
+
+        $admin->givePermissionTo([
+            'create-user',
+            'edit-user',
+            'delete-user',
+            'create-product',
+            'edit-product',
+            'delete-product'
+        ]);
+
+        $productManager->givePermissionTo([
+            'create-product',
+            'edit-product',
+            'delete-product'
+        ]);
+
+        Role::create(['name'=>'Staff','guard_name'=>'web']);
+        Role::create(['name'=>'Manager','guard_name'=>'web']);
+        Role::create(['name'=>'Waiter','guard_name'=>'web']);
+        Role::create(['name'=>'Customer','guard_name'=>'web']);
     }
 }

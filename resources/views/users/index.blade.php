@@ -1,272 +1,74 @@
 @extends('layouts.admin')
+
 @section('content')
-<div class="container">
 
+<div class="card">
+    <div class="card-header">Manage Users</div>
+    <div class="card-body">
+        @can('create-user')
+            <a href="{{ route('users.create') }}" class="btn btn-success btn-sm my-2"><i class="bi bi-plus-circle"></i> Add New User</a>
+        @endcan
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                <th scope="col">S#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Roles</th>
+                <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($users as $user)
+                <tr>
+                    <th scope="row">{{ $loop->iteration }}</th>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        @forelse ($user->getRoleNames() as $role)
+                            <span class="badge bg-primary">{{ $role }}</span>
+                        @empty
+                        @endforelse
+                    </td>
+                    <td>
+                        <form action="{{ route('users.destroy', $user->id) }}" method="post">
+                            @csrf
+                            @method('DELETE')
 
+                            <a href="{{ route('users.show', $user->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Show</a>
 
-        <div class="app-card app-card-orders-table shadow-sm mb-5">
-            <div class="app-card-body">
-                <div class="table-responsive">
-                    <table class="table app-table-hover mb-0 text-left">
-                        <thead>
-                            <tr>
-                                <th class="cell">Order</th>
-                                <th class="cell">Product</th>
-                                <th class="cell">Customer</th>
-                                <th class="cell">Date</th>
-                                <th class="cell">Status</th>
-                                <th class="cell">Total</th>
-                                <th class="cell"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell">#15346</td>
-                                <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget
-                                        volutpat erat</span></td>
-                                <td class="cell">John Sanders</td>
-                                <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span>
-                                </td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$259.35</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell">#15345</td>
-                                <td class="cell"><span class="truncate">Consectetur adipiscing
-                                        elit</span></td>
-                                <td class="cell">Dylan Ambrose</td>
-                                <td class="cell"><span class="cell-data">16 Oct</span><span
-                                        class="note">03:16 AM</span></td>
-                                <td class="cell"><span class="badge bg-warning">Pending</span></td>
-                                <td class="cell">$96.20</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell">#15344</td>
-                                <td class="cell"><span class="truncate">Pellentesque diam
-                                        imperdiet</span></td>
-                                <td class="cell">Teresa Holland</td>
-                                <td class="cell"><span class="cell-data">16 Oct</span><span
-                                        class="note">01:16 AM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$123.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
+                            @if (in_array('Super Admin', $user->getRoleNames()->toArray() ?? []) )
+                                @if (Auth::user()->hasRole('Super Admin'))
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
+                                @endif
+                            @else
+                                @can('edit-user')
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>   
+                                @endcan
 
-                            <tr>
-                                <td class="cell">#15343</td>
-                                <td class="cell"><span class="truncate">Vestibulum a accumsan lectus sed
-                                        mollis ipsum</span></td>
-                                <td class="cell">Jayden Massey</td>
-                                <td class="cell"><span class="cell-data">15 Oct</span><span
-                                        class="note">8:07 PM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$199.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
+                                @can('delete-user')
+                                    @if (Auth::user()->id!=$user->id)
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Do you want to delete this user?');"><i class="bi bi-trash"></i> Delete</button>
+                                    @endif
+                                @endcan
+                            @endif
 
-                            <tr>
-                                <td class="cell">#15342</td>
-                                <td class="cell"><span class="truncate">Justo feugiat neque</span></td>
-                                <td class="cell">Reina Brooks</td>
-                                <td class="cell"><span class="cell-data">12 Oct</span><span
-                                        class="note">04:23 PM</span></td>
-                                <td class="cell"><span class="badge bg-danger">Cancelled</span></td>
-                                <td class="cell">$59.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                    <td colspan="5">
+                        <span class="text-danger">
+                            <strong>No User Found!</strong>
+                        </span>
+                    </td>
+                @endforelse
+            </tbody>
+        </table>
 
-                            <tr>
-                                <td class="cell">#15341</td>
-                                <td class="cell"><span class="truncate">Morbi vulputate lacinia neque et
-                                        sollicitudin</span></td>
-                                <td class="cell">Raymond Atkins</td>
-                                <td class="cell"><span class="cell-data">11 Oct</span><span
-                                        class="note">11:18 AM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$678.26</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
+        {{ $users->links() }}
 
-                        </tbody>
-                    </table>
-                </div><!--//table-responsive-->
-
-            </div><!--//app-card-body-->
-        </div><!--//app-card-->
-        <nav class="app-pagination">
-            <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                </li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                </li>
-            </ul>
-        </nav><!--//app-pagination-->
-
-    </div><!--//tab-pane-->
-
-    <div class="tab-pane fade" id="orders-paid" role="tabpanel" aria-labelledby="orders-paid-tab">
-        <div class="app-card app-card-orders-table mb-5">
-            <div class="app-card-body">
-                <div class="table-responsive">
-
-                    <table class="table mb-0 text-left">
-                        <thead>
-                            <tr>
-                                <th class="cell">Order</th>
-                                <th class="cell">Product</th>
-                                <th class="cell">Customer</th>
-                                <th class="cell">Date</th>
-                                <th class="cell">Status</th>
-                                <th class="cell">Total</th>
-                                <th class="cell"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell">#15346</td>
-                                <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget
-                                        volutpat erat</span></td>
-                                <td class="cell">John Sanders</td>
-                                <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span>
-                                </td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$259.35</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="cell">#15344</td>
-                                <td class="cell"><span class="truncate">Pellentesque diam
-                                        imperdiet</span></td>
-                                <td class="cell">Teresa Holland</td>
-                                <td class="cell"><span class="cell-data">16 Oct</span><span
-                                        class="note">01:16 AM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$123.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="cell">#15343</td>
-                                <td class="cell"><span class="truncate">Vestibulum a accumsan lectus sed
-                                        mollis ipsum</span></td>
-                                <td class="cell">Jayden Massey</td>
-                                <td class="cell"><span class="cell-data">15 Oct</span><span
-                                        class="note">8:07 PM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$199.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-
-
-                            <tr>
-                                <td class="cell">#15341</td>
-                                <td class="cell"><span class="truncate">Morbi vulputate lacinia neque et
-                                        sollicitudin</span></td>
-                                <td class="cell">Raymond Atkins</td>
-                                <td class="cell"><span class="cell-data">11 Oct</span><span
-                                        class="note">11:18 AM</span></td>
-                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                <td class="cell">$678.26</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div><!--//table-responsive-->
-            </div><!--//app-card-body-->
-        </div><!--//app-card-->
-    </div><!--//tab-pane-->
-
-    <div class="tab-pane fade" id="orders-pending" role="tabpanel" aria-labelledby="orders-pending-tab">
-        <div class="app-card app-card-orders-table mb-5">
-            <div class="app-card-body">
-                <div class="table-responsive">
-                    <table class="table mb-0 text-left">
-                        <thead>
-                            <tr>
-                                <th class="cell">Order</th>
-                                <th class="cell">Product</th>
-                                <th class="cell">Customer</th>
-                                <th class="cell">Date</th>
-                                <th class="cell">Status</th>
-                                <th class="cell">Total</th>
-                                <th class="cell"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell">#15345</td>
-                                <td class="cell"><span class="truncate">Consectetur adipiscing
-                                        elit</span></td>
-                                <td class="cell">Dylan Ambrose</td>
-                                <td class="cell"><span class="cell-data">16 Oct</span><span
-                                        class="note">03:16 AM</span></td>
-                                <td class="cell"><span class="badge bg-warning">Pending</span></td>
-                                <td class="cell">$96.20</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div><!--//table-responsive-->
-            </div><!--//app-card-body-->
-        </div><!--//app-card-->
-    </div><!--//tab-pane-->
-    <div class="tab-pane fade" id="orders-cancelled" role="tabpanel"
-        aria-labelledby="orders-cancelled-tab">
-        <div class="app-card app-card-orders-table mb-5">
-            <div class="app-card-body">
-                <div class="table-responsive">
-                    <table class="table mb-0 text-left">
-                        <thead>
-                            <tr>
-                                <th class="cell">Order</th>
-                                <th class="cell">Product</th>
-                                <th class="cell">Customer</th>
-                                <th class="cell">Date</th>
-                                <th class="cell">Status</th>
-                                <th class="cell">Total</th>
-                                <th class="cell"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <tr>
-                                <td class="cell">#15342</td>
-                                <td class="cell"><span class="truncate">Justo feugiat neque</span></td>
-                                <td class="cell">Reina Brooks</td>
-                                <td class="cell"><span class="cell-data">12 Oct</span><span
-                                        class="note">04:23 PM</span></td>
-                                <td class="cell"><span class="badge bg-danger">Cancelled</span></td>
-                                <td class="cell">$59.00</td>
-                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div><!--//table-responsive-->
-            </div><!--//app-card-body-->
-        </div><!--//app-card-->
-    </div><!--//tab-pane-->
-
-
+    </div>
+</div>
+    
 @endsection

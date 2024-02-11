@@ -47,7 +47,7 @@
 
                 <li class="nav-item">
                     <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                    <a class="nav-link" href="orders.html">
+                    <a class="nav-link" href="{{ route('users.index') }}">
                         <span class="nav-icon">
                             <i>
                                 <img src="{{ asset('assets/images/icons/users.jpg') }}" width="26"

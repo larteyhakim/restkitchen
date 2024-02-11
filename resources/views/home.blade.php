@@ -3,10 +3,10 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            @if (Auth::user()->role->name == 'Admin')
+            @if (Auth::user()->hasRole ('Admin'))
                 @include('dashboard.admin')
             @endif
-            @if (Auth::user()->role->name == 'Manager')
+            {{-- @if (Auth::user()->role->name == 'Manager')
                 @include('dashboard.manager')
             @endif
             @if (Auth::user()->role->name == 'Kitchen Staff')
@@ -17,7 +17,7 @@
             @endif
             @if(Auth::user()->role->name == 'Customer')
             @include('dashboard.customer')
-        @endif  
+        @endif   --}}
         </div>
     </div>
 @endsection
